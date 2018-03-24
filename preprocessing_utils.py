@@ -3,6 +3,13 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from common_utils import getMostFrequent
 
+
+#NORMALIZZAZIONE
+def normalizeDataset(dataframe=originalDf):
+    min_max_scaler = preprocessing.MinMaxScaler()
+    for k in dataframe.columns:
+        dataframe[k] = min_max_scaler.fit_transform(dataframe[k].values.astype(float))
+
 def removeAttributes(df, removeBadBuy=False, *args):
     #restituisce un dataframe ottenuto, a partire dal dataframe contenente tutti gli attributi
     # rimuovendo tutti gli attributi che abbiamo deciso di rimuovere
