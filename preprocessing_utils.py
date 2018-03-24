@@ -30,15 +30,27 @@ def removeAttributes(df, removeBadBuy=False, *args):
     return df.drop(attributesToRemove, axis=1)
 
 
-def fillToOthers(attribute, df, valueToCut=0.1):
-    numValues = sum(df[attribute].value_counts())
+def fillToOthers(attribute, df, **kwargs):
     numDistinct = len(df[attribute].unique())
-    valuesToRepl=[]
-    for val in df[attribute].unique():
-        if float (len(df[df[attribute]==val]))/numValues < valueToCut:
-            valuesToRepl.append(val)
-    df[attribute][df[attribute].isin(valuesToRepl)]='Others'
+    try:
+        topN = kwargs['topN']
+    except KeyError:
+        try:
+            valueToCut = kwargs['valueToCut']
+            numValues = sum(df[attribute].value_counts())
+            valuesToRepl=[]
+            for val in df[attribute].unique():
+                if float (len(df[df[attribute]==val]))/numValues < valueToCut:
+                    valuesToRepl.append(val)
+            if len(valuesToRepl)>1:
+                df[attribute][df[attribute].isin(valuesToRepl)]='Others'
+            return df
+        except KeyError:
+            topN = 3
+    if numDistinct - topN > 1:
+        df[attribute][~df[attribute].isin(list(df[attribute].value_counts()[:topN].keys()))]='Others'
     return df
+
 
 
 

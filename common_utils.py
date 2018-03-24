@@ -33,14 +33,28 @@ def getGroupedDescription(attributeToDescribe, attributeToGroupBy,df):
     return df[attributeToDescribe].groupby(df[attributeToGroupBy]).describe()
 
 
-def getSingleAttributeStats(attribute, df, kindRepresentation='bar'):
-    # DA UTILIZZARE PER ATTRIBUTI NON CONTINUI!
-    print (df[attribute].describe())
-    print ("Distribuzione valori di " + attribute +": ")
-    print (df[attribute].value_counts())
+def getSingleAttributeStats(attribute, df, toOthers=False, kindRepresentation='bar', **kwargs):
+    from preprocessing_utils import fillToOthers
 
-    dfToPercent = df.groupby(attribute).size().apply\
-    (lambda x: float(x) / df.groupby(attribute).size().sum())
+    tmpDf = df.copy()
+    if toOthers:
+        try:
+            topN = kwargs['topN']
+            tmpDf = fillToOthers(attribute,tmpDf, topN=topN)
+        except KeyError:
+            try:
+                valueToCut = kwargs['valueToCut']
+                tmpDf = fillToOthers(attribute,tmpDf,valueToCut=valueToCut)
+            except KeyError:
+                tmpDf = fillToOthers(attribute,tmpDf)
+
+    # DA UTILIZZARE PER ATTRIBUTI NON CONTINUI!
+    print (tmpDf[attribute].describe())
+    print ("Distribuzione valori di " + attribute +": ")
+    print (tmpDf[attribute].value_counts())
+
+    dfToPercent = tmpDf.groupby(attribute).size().apply\
+    (lambda x: float(x) / tmpDf.groupby(attribute).size().sum())
     print ("Valori di " + attribute + " in percentuale: ")
     print (dfToPercent)
 
@@ -49,14 +63,14 @@ def getSingleAttributeStats(attribute, df, kindRepresentation='bar'):
     fig_dims = (2, 2)
 
     plt.subplot2grid(fig_dims, (0, 0))
-    df[attribute].value_counts().plot(kind=kindRepresentation,\
+    tmpDf[attribute].value_counts().plot(kind=kindRepresentation,\
                                                  title=attribute + ' values distribution')
 
     plt.subplot2grid(fig_dims, (0, 1))
     dfToPercent.plot(kind = kindRepresentation, title=attribute + ' values percentage')
 
     plt.subplot2grid(fig_dims, (1, 0))
-    df[attribute].value_counts().plot(kind='pie')
+    tmpDf[attribute].value_counts().plot(kind='pie', autopct='%1.1f%%')
 
 
 def getSingleContinueAttributeStats(attribute,df):
@@ -86,7 +100,7 @@ def getTwoAttributesStats(attribute1, attribute2, \
     print(tab2)
     tabpct2 = tab2.div(tab2.sum(1).astype(float), axis=0)
     print(tabpct2)
-    tabpct.plot(kind=kindRepresentation, stacked=True, title=attribute1 + ' Rate by ' + attribute2)
+    tabpct2.plot(kind=kindRepresentation, stacked=True, title=attribute1 + ' Rate by ' + attribute2)
     plt.xlabel(attribute2)
     plt.ylabel(attribute1)
 
