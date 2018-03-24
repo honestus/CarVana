@@ -1,17 +1,17 @@
-def fillToBinary(attribute, dataframe=originalDf,toOthers=True,valueToCut=0.1):
+def fillToBinary(attribute, df,toOthers=True,valueToCut=0.1):
     if toOthers:
-        fillToOthers(attribute, dataframe,valueToCut)
-    dataframe = pd.concat([dataframe, pd.get_dummies(dataframe[attribute], prefix=attribute+'_Val')], axis=1)
-    dataframe = dataframe.drop(attribute,axis=1)
-    return dataframe
+        fillToOthers(attribute, df,valueToCut)
+    df = pd.concat([df, pd.get_dummies(df[attribute], prefix=attribute+'_Val')], axis=1)
+    df = df.drop(attribute,axis=1)
+    return df
 
 
-def getDecisionTree(dataframe, train_features=[], train_target=[], crit='entropy', weightClass=None,\
+def getDecisionTree(df, train_features=[], train_target=[], crit='entropy', weightClass=None,\
                     minSamples=10, minSamplesLeaf=5, maxDepth=8, howSplit='random'):
     # restituisce un decision tree istruito sul dataframe in input, con le impostazioni in input
     if train_features == [] or train_target== []:
-        train_features = getFeaturesValues(dataframe)
-        train_target = getTargetValues(dataframe)
+        train_features = getFeaturesValues(df)
+        train_target = getTargetValues(df)
 
     # Genera il decision tree con le scelte effettuate in input per lo split, profondità etc.
     clf = tree.DecisionTreeClassifier(criterion=crit, splitter=howSplit, max_depth=maxDepth,
@@ -41,17 +41,17 @@ def visualize_tree(tree, feature_names):
              "produce visualization")
 
 
-def getImportances(classifier, dataframe):
+def getImportances(classifier, df):
     importances = {}
-    for index in range(1, len (dataframe.columns)):
-        importances[dataframe.columns[index]] = (float(classifier.feature_importances_[index-1])*100)
+    for index in range(1, len (df.columns)):
+        importances[df.columns[index]] = (float(classifier.feature_importances_[index-1])*100)
 
     return importances
 
 
 
-def splitTrainTest(dataframe, testPercent=0.3):
-    featuresValues = getFeaturesValues(dataframe)
-    targetValues = getTargetValues(dataframe)
+def splitTrainTest(df, testPercent=0.3):
+    featuresValues = getFeaturesValues(df)
+    targetValues = getTargetValues(df)
     return train_test_split(featuresValues, targetValues,
                                 test_size=testPercent, random_state=0)

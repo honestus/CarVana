@@ -5,10 +5,11 @@ from common_utils import getMostFrequent
 
 
 #NORMALIZZAZIONE
-def normalizeDataset(dataframe=originalDf):
+def normalizeDataset(df):
     min_max_scaler = preprocessing.MinMaxScaler()
-    for k in dataframe.columns:
-        dataframe[k] = min_max_scaler.fit_transform(dataframe[k].values.astype(float))
+    for k in df.columns:
+        df[k] = min_max_scaler.fit_transform(df[k].values.astype(float))
+    return df
 
 def removeAttributes(df, removeBadBuy=False, *args):
     #restituisce un dataframe ottenuto, a partire dal dataframe contenente tutti gli attributi
@@ -16,6 +17,7 @@ def removeAttributes(df, removeBadBuy=False, *args):
     # se @removeBadBuy =True, rimuove anche IsBadBuy dagli attributi del dataframe
     try:
         attributesToRemove = args[0]
+        print(attributesToRemove)
     except IndexError:
         attributesToRemove = ['RefId','VehYear','Model','SubModel','WheelTypeID','TopThreeAmericanName',\
         'MMRAcquisitionAuctionAveragePrice','MMRAcquisitionAuctionCleanPrice',\
